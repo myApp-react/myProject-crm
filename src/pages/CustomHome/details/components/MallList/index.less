@@ -1,0 +1,257 @@
+.mall-warp{
+  position: relative;
+  width: 100%;
+  padding: 0 7.5px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: #fff;
+}
+.maillist-one{
+  display: block;
+  width: 50%;
+  height: 100%;
+  .mall-list-col{
+    position: relative;
+    padding: 10px 7.5px 0;
+    height: 222px;
+  }
+  .mall-list-img{
+    width: 100%;
+  }
+  .list-img{
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 66.6667%;
+    background-color: #F2F6F9;
+  }
+  :global{
+    .anticon{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+  img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .list-main{
+    margin-top: 6px;
+    width: 100%;
+  }
+  .title{
+
+    margin-bottom: 0;
+    width: 100%;
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+  }
+  .integral{
+    margin: 2px 0 0;
+    width: 100%;
+    line-height: 1.5;
+  }
+  .mall-list-btn{
+    margin-top: 10px;
+  }
+}
+
+.maillist-two{
+  display: block;
+  width: 100%;
+  height: 100%;
+  &:last-child{
+    .mall-list:after{
+      display: none;
+    }
+  }
+  .mall-list{
+    position: relative;
+    width: 100%;
+    padding: 10px 7.5px;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    &:after{
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 7.5px;
+      right: 7.5px;
+      //width: 100%;
+      height: 0;
+      border: 1px solid #E1E3E6;
+      transform: scaleY(0.5);
+      transform-origin: 0 0;
+      background: #000;
+    }
+  }
+  :global{
+    .anticon{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+  .mall-list-img{
+    position: relative;
+    width: 120px;
+    height: 120px;
+    background-color: #F2F6F9;
+    img{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      //object-fit: cover;
+    }
+  }
+  .mall-list-main{
+    flex: 1;
+    padding-left: 15px;
+
+  }
+  .mall-list-title{
+    margin-bottom: 14px;
+    line-height: 1.2;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-all;
+  }
+  .mall-list-integral{
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  :global{
+    .am-button {
+      &:before{
+        display: none;
+      }
+    }
+  }
+}
+
+//.url{
+//  display: block;
+//  width: 100%;
+//  height: 100%;
+//}
+//.mall-warp{
+//  position: relative;
+//  width: 100%;
+//  padding: 0 7.5px;
+//  box-sizing: border-box;
+//  display: flex;
+//  flex-wrap: wrap;
+//  align-items: center;
+//  justify-content: flex-start;
+//  background-color: #fff;
+//}
+//
+//.mall-list{
+//  position: relative;
+//  padding: 15px 7.5px;
+//  display: flex;
+//  flex-wrap: wrap;
+//  align-items: center;
+//  justify-content: flex-start;
+//  width: 100%;
+//  box-sizing: border-box;
+//}
+//.mall-list-border{
+//  &:after{
+//    content: '';
+//    position: absolute;
+//    bottom: 0;
+//    left: 7.5px;
+//    right: 7.5px;
+//    height: 0;
+//    border-bottom: 1px solid #E1E3E6;
+//  }
+//  &:last-child{
+//    &:after{
+//      border-bottom: none;
+//    }
+//  }
+//}
+//
+//.mall-list-horizontal{
+//  padding: 7.5px;
+//}
+//.mall-list-col{
+//  width: 100%;
+//
+//}
+//
+//.mall-list-img{
+//  width: 120px;
+//  height: 120px;
+//  background-color: #E9E9E9;
+//  text-align: center;
+//  img{
+//    display: block;
+//    width: 100%;
+//    height: 100%;
+//    object-fit: contain;
+//  }
+//  &:after{
+//    content: '';
+//    width: 0;
+//    height: 100%;
+//    display: inline-block;
+//    vertical-align: middle;
+//  }
+//  :global{
+//    .anticon{
+//      display: inline-block;
+//      vertical-align: middle;
+//      font-size: 32px;
+//      color: #aaa;
+//    }
+//  }
+//}
+//.mall-list-main{
+//  height: 120px;
+//  flex: 1;
+//  display: flex;
+//  flex-wrap: wrap;
+//  align-content: space-between;
+//  padding-left: 10px;
+//  box-sizing: border-box;
+//}
+//
+//.mall-list-title{
+//  width: 100%;
+//  font-size: 15px;
+//  color: #333;
+//}
+//.mall-list-integral{
+//  margin: 0;
+//  width: 100%;
+//  color: #ffaa1b;
+//  font-size: 20px;
+//}
+//
+//.mall-list-btn{
+//  width: 100%;
+//  text-align: left;
+//}

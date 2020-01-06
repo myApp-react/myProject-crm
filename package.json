@@ -1,0 +1,74 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "umi dev",
+    "build": "umi build",
+    "build:prod": "cross-env UMI_ENV=prod umi build",
+    "test": "umi test",
+    "lint:es": "eslint --ext .js src mock tests",
+    "lint:ts": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
+    "precommit": "lint-staged"
+  },
+  "dependencies": {
+    "@hanyk/rc-viewer": "^0.0.3",
+    "antd": "^3.26.6",
+    "classnames": "^2.2.6",
+    "dva": "^2.6.0-beta.20",
+    "lodash-decorators": "^6.0.0",
+    "moment": "^2.22.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-ueditor-component": "^1.0.5",
+    "redux": "^4.0.1",
+    "umi-request": "^1.2.14"
+  },
+  "devDependencies": {
+    "@ant-design/pro-layout": "^4.5.5",
+    "@ant-design/pro-table": "^1.0.20",
+    "@types/jest": "^23.3.12",
+    "@types/qs": "^6.9.0",
+    "@types/react": "^16.7.18",
+    "@types/react-dom": "^16.0.11",
+    "@types/react-test-renderer": "^16.0.3",
+    "ant-design-draggable-modal": "^0.0.13",
+    "babel-eslint": "^9.0.0",
+    "cross-env": "^6.0.3",
+    "dragm": "^0.0.5",
+    "eslint": "^5.4.0",
+    "eslint-config-umi": "^1.4.0",
+    "eslint-plugin-flowtype": "^2.50.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.11.1",
+    "husky": "^0.14.3",
+    "immutability-helper": "^3.0.1",
+    "lint-staged": "^7.2.2",
+    "rc-resize-observer": "^0.1.3",
+    "react-beautiful-dnd": "^12.1.1",
+    "react-color": "^2.17.3",
+    "react-dnd": "^9.4.0",
+    "react-dnd-html5-backend": "^9.4.0",
+    "react-test-renderer": "^16.7.0",
+    "react-window": "^1.8.5",
+    "shortid": "^2.2.15",
+    "tslint": "^5.12.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "tslint-react": "^3.6.0",
+    "umi": "^2.12.4",
+    "umi-plugin-react": "^1.8.0",
+    "umi-types": "^0.5.8"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "tslint --fix",
+      "git add"
+    ],
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "git add"
+    ]
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  }
+}

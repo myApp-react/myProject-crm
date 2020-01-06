@@ -1,0 +1,69 @@
+.games-warp{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-size: 300%;
+  &::-webkit-scrollbar{
+    width: 0;
+  }
+}
+.eggs-bg{
+  width: 100%;
+  height: 100%;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: 100%;
+}
+.content{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 99;
+}
+
+.content-img{
+  width: 100%;
+  height: 1028px;
+  background: url("@/assets/games/eggs-main-hold.png") no-repeat top center;
+  background-size: 100%;
+}
+
+.activity-info{
+  padding: 15px;
+}
+
+.activity-info-inner{
+  padding: 8px 15px 15px;
+  border-radius:4px;
+  background:rgba(255,255,255,.1);
+}
+
+.title{
+  font-size: 14px;
+  text-align: center;
+  color: #d4d4d4;
+  span{
+    position: relative;
+    &:after{
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 4px;
+      width: 100%;
+      background:rgba(252,249,20,.3);
+    }
+  }
+}
+
+.activity-info-des{
+  margin-top: 8px;
+}
+
+
+

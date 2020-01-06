@@ -1,0 +1,25 @@
+.dynamic-delete-button{
+  position: relative;
+  top: 7px;
+  font-size: 24px;
+  color: #999;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover{
+    color: #777;
+  }
+}
+
+.dynamic-delete-button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.limit-card{
+  margin-bottom: 24px;
+  :global{
+    .ant-card-body{
+      padding: 36px 24px;
+    }
+  }
+}
