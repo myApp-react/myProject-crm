@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@hanyk/rc-viewer": "^0.0.3",
-    "antd": "^3.26.6",
+    "antd": "^4.0.0-rc.0",
     "classnames": "^2.2.6",
     "dva": "^2.6.0-beta.20",
     "lodash-decorators": "^6.0.0",
