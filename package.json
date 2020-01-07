@@ -6,8 +6,7 @@
     "build:prod": "cross-env UMI_ENV=prod umi build",
     "test": "umi test",
     "lint:es": "eslint --ext .js src mock tests",
-    "lint:ts": "tslint \"src/**/*.ts\" \"src/**/*.tsx\"",
-    "precommit": "lint-staged"
+    "lint:ts": "tslint \"src/**/*.ts\" \"src/**/*.tsx\""
   },
   "dependencies": {
     "@hanyk/rc-viewer": "^0.0.3",

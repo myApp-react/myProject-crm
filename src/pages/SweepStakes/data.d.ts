@@ -24,6 +24,8 @@ export interface TableListItem {
   ActivityDetail: string;
   ShareImageUrl: string;
   ActivityImageUrl: string;
+  TurnTableImageUrl: string;
+  ReproductionUrl: string;
 
   Index: number;
   Size: number;

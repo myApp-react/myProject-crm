@@ -16,7 +16,7 @@ import {
 } from 'antd';
 
 import { FormComponentProps } from 'antd/es/form';
-import React, { PureComponent, GetDerivedStateFromProps } from 'react';
+import React, { PureComponent } from 'react';
 import moment from 'moment';
 import DragM from "dragm";
 import ReactUEditorComponent from 'react-ueditor-component';
@@ -44,7 +44,7 @@ interface DragTitleState {
 }
 
 class DragTitle extends PureComponent<DragTitleProps, DragTitleState>{
-  modalDom = null;
+  private modalDom = null;
 
   state: DragTitleState = {
     editorContent: '',
@@ -138,14 +138,14 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
         wechatShareImageUrl: nextProps.values.ShareImageUrl,
         activityCoverImageUrl: nextProps.values.ActivityImageUrl,
         IsApply: nextProps.values.IsNeedApply === 1,
-
+        turntableImageUrl: nextProps.values.TurnTableImageUrl,
       }
     }
     return null
   }
 
   okHandle = () => {
-    const { form, handleUpdate, values } = this.props;
+    const { form, handleUpdate,  } = this.props;
     form.validateFields((err, fieldsValue) => {
       console.log('fieldsValue---------', fieldsValue)
       if (err) return;
@@ -175,7 +175,6 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
         ApplyMaxCount,
         ApplyScores,
         ApplyRangeDate
-
       } = fieldsValue;
 
       if(ActivityRangeDate && ActivityRangeDate.length !== 0) {
@@ -230,9 +229,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
       }
 
       console.log('values--------', values)
-
       // form.resetFields();
-
       handleUpdate(values);
     });
   };
@@ -246,7 +243,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
   handleActivityCoverChange = (info: any) => {
 
     const _self = this;
-    const { handleUploadImages } = this.props;
+    const { handleUploadImages, values, handleUpdateModalVisible } = this.props;
     const isJpgOrPng = info.file.type === 'image/jpeg' || info.file.type === 'image/png';
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!');
@@ -261,11 +258,13 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
     getBase64(info.file, (imageUrl: any) => {
       if(handleUploadImages){
         handleUploadImages(imageUrl, (data) => {
+          const currValues = {...values, ActivityImageUrl: imageUrl };
+          handleUpdateModalVisible(true, currValues)
           _self.setState({
             activityCoverImageGuid: data,
-            activityCoverImageUrl: imageUrl,
             activityCoverloading: false,
           })
+
         })
       }
     });
@@ -274,7 +273,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
   //微信分享图片
   handleWechatShareChange = (info: any) => {
     const _self = this;
-    const { handleUploadImages } = this.props;
+    const { handleUploadImages, handleUpdateModalVisible, values } = this.props;
     const isJpgOrPng = info.file.type === 'image/jpeg' || info.file.type === 'image/png';
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!');
@@ -289,9 +288,10 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
     getBase64(info.file, (imageUrl: any) => {
       if(handleUploadImages){
         handleUploadImages(imageUrl, (data) => {
+          const currValues = {...values, ShareImageUrl: imageUrl };
+          handleUpdateModalVisible(true, currValues)
           _self.setState({
             wechatShareImageGuid: data,
-            wechatShareImageUrl: imageUrl,
             wechatShareloading: false
           })
         })
@@ -302,7 +302,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
   //活动底图上传
   handleActivityBgChange = (info: any) => {
     const _self = this;
-    const { handleUploadImages } = this.props;
+    const { handleUploadImages, values, handleUpdateModalVisible } = this.props;
     const isJpgOrPng = info.file.type === 'image/jpeg' || info.file.type === 'image/png';
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!');
@@ -317,9 +317,11 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
     getBase64(info.file, (imageUrl: any) => {
       if(handleUploadImages){
         handleUploadImages(imageUrl, (data) => {
+          const currValues = {...values, ReproductionUrl: imageUrl };
+          handleUpdateModalVisible(true, currValues)
           _self.setState({
             activityBgImageGuid: data,
-            activityBgImageUrl: imageUrl,
+            // activityBgImageUrl: imageUrl,
             activityBgloading: false
           })
         })
@@ -330,7 +332,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
   //转盘图上传
   turntableUploadImgChange = (info: any) => {
     const _self = this;
-    const { handleUploadImages } = this.props;
+    const { handleUploadImages, values, handleUpdateModalVisible } = this.props;
     const isJpgOrPng = info.file.type === 'image/jpeg' || info.file.type === 'image/png';
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!');
@@ -345,9 +347,10 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
     getBase64(info.file, (imageUrl: any) => {
       if(handleUploadImages){
         handleUploadImages(imageUrl, (data) => {
+          const currValues = {...values, TurnTableImageUrl: imageUrl };
+          handleUpdateModalVisible(true, currValues);
           _self.setState({
             turntableImageGuid: data,
-            turntableImageUrl: imageUrl,
             turntableImageloading: false
           })
         })
@@ -432,7 +435,6 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
       turntableImageloading,
       turntableImageUrl,
     } = this.state;
-    console.log('values', values)
     const {
       ActivityType,
       ActivityName,
@@ -443,13 +445,13 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
       ShareDesc,
       IsNeedApply,
       IsSingin,
-      IsRecommand
+      IsRecommand, TurnTableImageUrl, ReproductionUrl
     } = values;
     const title = <DragTitle title="新建活动" />;
 
     return (
       <Modal
-        destroyOnClose
+        destroyOnClose={true}
         title={title}
         width={800}
         style={{ top: 40 }}
@@ -542,7 +544,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                         initialValue: [moment(ActivityStartTimeSpan), moment(ActivityEndTimeSpan)]
                       })(
                         <RangePicker
-                          showTime
+                          showTime={true}
                           ranges={{
                             '今日': [moment().startOf('days'), moment().endOf('days')],
                             '本月': [moment().startOf('month'), moment().endOf('month')],
@@ -566,7 +568,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                         initialValue: [moment(ActivityStartTimeSpan), moment(ActivityEndTimeSpan)]
                       })(
                         <RangePicker
-                          showTime
+                          showTime={true}
                           ranges={{
                             '今日': [moment().startOf('days'), moment().endOf('days')],
                             '本月': [moment().startOf('month'), moment().endOf('month')],
@@ -588,7 +590,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                         ],
                       })(
                         <RangePicker
-                          showTime
+                          showTime={true}
                           ranges={{
                             '今日': [moment().startOf('days'), moment().endOf('days')],
                             '本月': [moment().startOf('month'), moment().endOf('month')],
@@ -671,13 +673,15 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                     className={styles['img-uploader']}
                     customRequest={this.handleActivityCoverChange}
                   >
-                    { activityCoverImageUrl ?
+                    {
+                      activityCoverImageUrl ?
                       <img
                         src={activityCoverImageUrl}
                         alt="活动封面图片"
                         className={styles.img_show_warp}
                       /> :
-                      this.uploadButton(activityCoverloading, '上传图片') }
+                      this.uploadButton(activityCoverloading, '上传图片')
+                    }
                   </Upload>
                 )}
               </FormItem>
@@ -831,7 +835,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
 
                       })(
                         <RangePicker
-                          showTime
+                          showTime={true}
                           ranges={{
                             '今日': [moment().startOf('days'), moment().endOf('days')],
                             '本月': [moment().startOf('month'), moment().endOf('month')],
@@ -895,7 +899,6 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                 </Col>
               )
             }
-
             <Col span={24}>
               <FormItem  label="是否需要推荐">
                 {form.getFieldDecorator('IsRecommand', {

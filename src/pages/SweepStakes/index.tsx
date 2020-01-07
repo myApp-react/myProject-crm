@@ -487,7 +487,7 @@ class TableList extends Component<TableListProps, TableListState> {
       callback: () => {
         message.success('修改成功！');
         this.initFetch();
-        this.handleModalVisible();
+        this.handleUpdateModalVisible(false, this.state.updateFormValues);
       }
     });
   };
@@ -526,7 +526,7 @@ class TableList extends Component<TableListProps, TableListState> {
           <Col md={8} sm={24}>
             <FormItem label="活动类型">
               {getFieldDecorator('ActivityType')(
-                <Select placeholder="请选择活动类型" style={{ width: '100%' }} allowClear>
+                <Select placeholder="请选择活动类型" style={{ width: '100%' }} allowClear={true}>
                   <Option value={1}>商场活动</Option>
                   <Option value={2}>商铺活动</Option>
                   <Option value={3}>在线活动</Option>
@@ -582,7 +582,7 @@ class TableList extends Component<TableListProps, TableListState> {
           <Col md={8} sm={24}>
             <FormItem label="活动类型">
               {getFieldDecorator('ActivityType')(
-                <Select placeholder="请选择活动类型" style={{ width: '100%' }} allowClear>
+                <Select placeholder="请选择活动类型" style={{ width: '100%' }} allowClear={true}>
                   <Option value={1}>商场活动</Option>
                   <Option value={2}>商铺活动</Option>
                   <Option value={3}>在线活动</Option>
@@ -606,7 +606,7 @@ class TableList extends Component<TableListProps, TableListState> {
                 <Select
                   placeholder="请选择发布状态"
                   style={{ width: '100%' }}
-                  allowClear
+                  allowClear={true}
                 >
                   <Option value={0}>未发布</Option>
                   <Option value={1}>已发布</Option>
@@ -651,7 +651,7 @@ class TableList extends Component<TableListProps, TableListState> {
                 <Select
                   placeholder="请选择开始状态"
                   style={{ width: '100%' }}
-                  allowClear
+                  allowClear={true}
                 >
                   <Option value={0}>未开始</Option>
                   <Option value={1}>已开始</Option>
@@ -685,10 +685,7 @@ class TableList extends Component<TableListProps, TableListState> {
 
   render() {
     const {
-      sweepStakes: { data },
-      app,
-      loading,
-    } = this.props;
+      sweepStakes: { data }, app, loading } = this.props;
     const { selectedRows, modalVisible, updateModalVisible, updateFormValues, formFlag } = this.state;
     const { projectData } = app;
     const parentMethods = {

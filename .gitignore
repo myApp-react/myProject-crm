@@ -12,6 +12,7 @@
 /build
 /project_crm
 /.idea
+/build-map
 
 # misc
 .DS_Store
