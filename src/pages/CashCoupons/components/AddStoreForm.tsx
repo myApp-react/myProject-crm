@@ -317,7 +317,7 @@ class CreateCouponsForm extends PureComponent<CreateFormProps, CreateFormState>{
               columns={this.columns}
               dataSource={data}
               pagination={false}
-              size="middle"
+              size="small"
               scroll={{ y: 240 }}
               footer={() => '实打实大苏打'}
             />

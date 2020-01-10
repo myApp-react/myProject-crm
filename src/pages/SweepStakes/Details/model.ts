@@ -54,8 +54,8 @@ const Model: ModelType = {
           payload: {
             list: Items,
             pagination: {
-              current: PageIndex,
-              pageSize: PageCount,
+              current: Number(payload.Index),
+              pageSize: Number(payload.Size),
               total: TotalCount,
             }
           }

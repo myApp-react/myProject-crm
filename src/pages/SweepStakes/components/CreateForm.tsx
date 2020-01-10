@@ -23,20 +23,16 @@ import ReactUEditorComponent from 'react-ueditor-component';
 
 import styles from './index.less'
 import { pictureTypeaAndSize, checkImageWH, getBase64 } from '@/utils';
-import { Prefix, uploadUrl } from '@/utils/constant';
+import { Prefix } from '@/utils/constant';
 import { ViewDrawer } from '@/components';
 
 import { DraggableModal, DraggableModalProvider } from 'ant-design-draggable-modal'
 import 'ant-design-draggable-modal/dist/index.css'
 import { ProjectParams } from '@/models/data';
-import { appType } from '@/models/app';
-import { StateType } from '@/pages/SweepStakes/model';
-import { connect } from 'dva';
 import { AddTableParams } from '@/pages/SweepStakes/data';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
-const { Option, OptGroup } = Select;
 const { RangePicker } = DatePicker;
 const DateFormat = 'YYYY-MM-DD HH:mm:ss';
 
@@ -155,7 +151,7 @@ class CreateActivityForm extends PureComponent<CreateFormProps, CreateFormState>
   okHandle = () => {
     const { form, handleAdd } = this.props;
     form.validateFields((err, fieldsValue) => {
-      console.log('fieldsValue---------', fieldsValue)
+      // console.log('fieldsValue---------', fieldsValue)
       if (err) return;
       let ActivityStartTime = undefined,
           ActivityEndTime = undefined,
@@ -242,7 +238,7 @@ class CreateActivityForm extends PureComponent<CreateFormProps, CreateFormState>
         ApplyPlaceHolder
       }
 
-      console.log('values--------', values)
+      // console.log('values--------', values)
 
       // form.resetFields();
 
@@ -398,6 +394,7 @@ class CreateActivityForm extends PureComponent<CreateFormProps, CreateFormState>
   endDateHandleValidator = (rule: any, val: Array<moment>, callback: any) => {
     if (!val) {
       callback();
+      return
     }
     if(val.length === 0){
       callback();
@@ -414,21 +411,22 @@ class CreateActivityForm extends PureComponent<CreateFormProps, CreateFormState>
   }
 
   activityChangeHandle = (val: number) => {
-    this.setState({
-      activityType: val
-    })
+    this.setState({activityType: val})
   }
 
   activityGameChange = (val: number) => {
-    this.setState({
-      gameType: val
-    })
+    this.setState({gameType: val})
   }
 
   applyChange = (e: React.BaseSyntheticEvent) => {
     const IsApply = e.target.value === 1;
     this.setState({ IsApply })
   }
+
+  beforeUpload = file => new Promise((resolve, reject) => {
+    console.log('file', file)
+
+  })
 
   render() {
     const { modalVisible, form, handleModalVisible, projectData } = this.props;
@@ -914,7 +912,7 @@ class CreateActivityForm extends PureComponent<CreateFormProps, CreateFormState>
                   ueditorOptions={{
                     toolbars: [
                       [
-                        'fullscreen', /*  */ 'source', '|', 'undo', 'redo', '|', "fontsize", 'more', '|', 'blockquote', 'horizontal', '|',  'removeformat', '|', 'simpleupload', /*'insertvideo',*/
+                        'fullscreen', /*  */ 'source', '|', 'undo', 'redo', '|', "fontsize", 'more', '|', 'blockquote', 'horizontal', '|',  'removeformat', '|', 'simpleupload', /*'insertimage', 'insertvideo',*/
                       ],[
                         'bold', 'italic', 'underline', 'strikethrough', '|', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist',
                         'justifyleft', 'justifycenter', 'justifyright', '|',
@@ -929,27 +927,16 @@ class CreateActivityForm extends PureComponent<CreateFormProps, CreateFormState>
                     serverOptions: {
                       /* 上传图片配置项 */
                       imageActionName: 'uploadimage', /* 执行上传图片的action名称 */
-                      imageFieldName: 'dataStr', /* 提交的图片表单名称 */
+                      imageFieldName: 'base64str', /* 提交的图片表单名称 */
                       imageMaxSize: 2048000, /* 上传大小限制，单位B */
                       imageAllowFiles: ['.png', '.jpg', '.jpeg', '.gif', '.bmp'], /* 上传图片格式显示 */
                       imageCompressEnable: true, /* 是否压缩图片,默认是true */
                       imageCompressBorder: 1600, /* 图片压缩最长边限制 */
                       imageInsertAlign: 'none', /* 插入的图片浮动方式 */
-                      imageUrlPrefix: '', /* 图片访问路径前缀 */
-                      imageResponseKey: 'fileURL' //! 图片上传接口response中包含图片路径的键名
+                      imageUrlPrefix: `http://120.26.211.143:5001`, /* 图片访问路径前缀 */
+                      imageResponseKey: 'Data' //! 图片上传接口response中包含图片路径的键名
                     },
-                    // 上传文件时的额外信息
-                    serverExtra: {
-                      // 上传文件额外请求头
-                      headers: {
-                        Auth: 'token'
-                      },
-                      // 上传文件额外的数据
-                      extraData: {
-                        dataStr: 'more data'
-                      }
-                    },
-                    serverUrl: 'http://120.26.211.143:5001/ActivityToUi/UploadActivityImage' // 上传文件的接口
+                    serverUrl: `${Prefix}/ActivityToUi/UploadActivityImageForm` // 上传文件的接口
                   }}
                 />
               </FormItem>

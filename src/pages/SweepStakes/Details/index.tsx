@@ -35,9 +35,12 @@ const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
 const DateFormater = 'YYYY.MM.DD HH:mm:ss';
 const activityMap = ['', '普通活动', '', '', '抽奖活动', '', ''];
+const LuckyTypeMap = ['', '大转盘', '开宝箱', '刮刮乐', '砸金蛋'];
 const startStatus = ['未开始', '已开始', '已结束'];
 const status = ['未发布', '已发布', '取消发布'];
 const ApplyMap = ['否', '是'];
+const SignInStatusMap = ['未签到', '已签到'];
+const EnabledStatusMap = ['禁用', '启用'];
 
 const ApplyTable = lazy(() => import('./components/ApplyTable'))
 const AddActivityApply = lazy(() => import('./components/AddActivityApply'))
@@ -54,20 +57,25 @@ const columns = [
   {
     title: '报名时间',
     dataIndex: 'ApplyTimeSpan',
-    render: (text: string) => {
-      if (text === 'agree') {
-        return <Badge status="success" text="成功" />;
-      }
-      return <Badge status="error" text="驳回" />;
-    },
+    render: (val: number) => moment(val).format(DateFormater),
   },
   {
     title: '签到时间',
+    dataIndex: 'SignInTimeSpan',
+    render: (val: number) => {
+      if(val) return moment(val).format(DateFormater)
+      return '-'
+    }
+  },
+  {
+    title: '签到状态',
     dataIndex: 'SignInStatus',
+    render: (val: number) => SignInStatusMap[val]
   },
   {
     title: '启用状态',
     dataIndex: 'Enabled',
+    render: (val: number) => EnabledStatusMap[val]
   },
 ];
 
@@ -123,6 +131,7 @@ interface DetailsType {
   ActivityDetail: string
   PublishStatus: number
   StartStatus: number
+  LuckyType: number
 };
 
 interface DetailsState {
@@ -190,7 +199,8 @@ class Details extends Component<DetailsProps, DetailsState> {
       Note: "",
       ActivityDetail: '',
       PublishStatus: 12,
-      StartStatus: 12
+      StartStatus: 12,
+      LuckyType: 0,
     },
 
   };
@@ -216,8 +226,6 @@ class Details extends Component<DetailsProps, DetailsState> {
 
   componentDidMount() {
     this.GetActivityDetails();
-    this.GetApplysListHandle();
-    this.GetCommentsListHandle();
   }
 
   GetActivityDetails = () => {
@@ -228,16 +236,18 @@ class Details extends Component<DetailsProps, DetailsState> {
         type: 'sweepStakesAndDetails/fetchAdvanced',
         payload: { AcitivityId: match[1]},
         callback: (res: DetailsType) => {
-          this.setState({
-            activityDetails: res
-          })
+          this.setState({activityDetails: res})
+          // console.log(res)
+          if(res.IsNeedApply === 1){
+            this.GetApplysListHandle();
+          }
         }
       });
     }
   }
 
   //报名详情
-  GetApplysListHandle = (params?: { UserInfo: string, SignInStatus: number }) => {
+  GetApplysListHandle = (params?: { UserInfo?: string, SignInStatus?: number, Index?: number, Size?: number }) => {
     const { dispatch, location } = this.props;
     const match = pathMatchRegexp('/sweepstakes/details/:id', location.pathname);
     if(match){
@@ -351,7 +361,7 @@ class Details extends Component<DetailsProps, DetailsState> {
       ApplyMaxCount,
       ShareImageUrl,
       ShareNote,
-      ApplyTip, PublishStatus, StartStatus, AcitivityId
+      ApplyTip, PublishStatus, StartStatus, AcitivityId, LuckyType
     } = activityDetails;
 
     const description = (
@@ -360,6 +370,9 @@ class Details extends Component<DetailsProps, DetailsState> {
           <Descriptions className={styles.headerList} size='small'  column={isMobile ? 1 : 3}>
             <Descriptions.Item label="项目名称">{ProjectName}</Descriptions.Item>
             <Descriptions.Item label="活动类型">{activityMap[ActivityType]}</Descriptions.Item>
+            {
+              ActivityType === 4 && <Descriptions.Item label="活动类型">{LuckyTypeMap[LuckyType]}</Descriptions.Item>
+            }
             <Descriptions.Item label="活动时间">{ActivityStartTimeSpan && `${moment(ActivityStartTimeSpan).format(DateFormater)} ~ ${moment(ActivityEndTimeSpan).format(DateFormater)}`}</Descriptions.Item>
             <Descriptions.Item label="发布时间">{PublishTimeSpan && moment(PublishTimeSpan).format(DateFormater) || '无'}</Descriptions.Item>
             <Descriptions.Item label="服务电话">{Phone || '无'}</Descriptions.Item>
@@ -420,7 +433,6 @@ class Details extends Component<DetailsProps, DetailsState> {
           <FormItem>
             {form.getFieldDecorator('desc112', {
               rules: [{ required: false, message: '请选择活动类型！'}],
-              initialValue: [moment('2015/01/01', DateFormater), moment('2015/01/01', DateFormater)]
             })(
               <RangePicker
                 format={DateFormater}
@@ -443,6 +455,10 @@ class Details extends Component<DetailsProps, DetailsState> {
         extraContent={extra}
         tabActiveKey={tabActiveKey}
         onTabChange={this.onTabChange}
+        style={{
+          paddingBottom: 200
+        }}
+
       >
         <div className={styles.main}>
           <GridContent>
@@ -492,7 +508,7 @@ class Details extends Component<DetailsProps, DetailsState> {
                 <Descriptions.Item label="活动说明">
                   <Popover
                     content={<div style={{width: 375}}>
-                      {<span dangerouslySetInnerHTML={{__html: decodeURI(ActivityDetail)}} />  || '暂无说明'}
+                      { ActivityDetail && <span dangerouslySetInnerHTML={{__html: decodeURI(ActivityDetail)}} />  || '暂无说明'}
                     </div>}
                     title="活动说明"
                     placement="right"
@@ -502,49 +518,53 @@ class Details extends Component<DetailsProps, DetailsState> {
                 </Descriptions.Item>
               </Descriptions>
             </Card>
-            <Card
-              className={styles.tableCard}
-              bordered={false}
-              title="报名详情"
-              style={{ marginTop: 24 }}
-              bodyStyle={{ padding: '0 32px 40px 32px' }}
-              extra={extraContent}
-              loading={loading}
-            >
-              <Button
-                type="dashed"
-                style={{ width: '100%', marginBottom: 12 }}
-                icon="plus"
-                onClick={() => this.handleUpdateModalVisible(true, { flag: true })}
-              >
-                添加
-              </Button>
-              <Suspense fallback={null}>
-                <ApplyTable
+            {
+              IsNeedApply === 1 && (
+                <Card
+                  className={styles.tableCard}
+                  bordered={false}
+                  title="报名详情"
+                  style={{ marginTop: 24 }}
+                  bodyStyle={{ padding: '0 32px 40px 32px' }}
+                  extra={extraContent}
                   loading={loading}
-                  dataSource={ActivityApply}
-                  columns={columns}
-
-                />
-              </Suspense>
-            </Card>
-            <Card
-              className={styles.tableCard}
-              bordered={false}
-              title="评论详情"
-              style={{ marginTop: 24, marginBottom: 24 }}
-              bodyStyle={{ padding: '0 32px 40px 32px' }}
-              extra={extraCommitContent}
-              loading={loading}
-            >
-              <Suspense fallback={null}>
-                <ApplyTable
-                  loading={loading}
-                  dataSource={ActivityComments}
-                  columns={this.commentsColumns}
-                />
-              </Suspense>
-            </Card>
+                >
+                  <Button
+                    type="dashed"
+                    style={{ width: '100%', marginBottom: 12 }}
+                    icon="plus"
+                    onClick={() => this.handleUpdateModalVisible(true, { flag: true })}
+                  >
+                    添加
+                  </Button>
+                  <Suspense fallback={null}>
+                    <ApplyTable
+                      loading={loading}
+                      dataSource={ActivityApply}
+                      columns={columns}
+                      GetApplysListHandle={this.GetApplysListHandle}
+                    />
+                  </Suspense>
+                </Card>
+              )
+            }
+            {/*<Card*/}
+              {/*className={styles.tableCard}*/}
+              {/*bordered={false}*/}
+              {/*title="评论详情"*/}
+              {/*style={{ marginTop: 24, marginBottom: 24 }}*/}
+              {/*bodyStyle={{ padding: '0 32px 40px 32px' }}*/}
+              {/*extra={extraCommitContent}*/}
+              {/*loading={loading}*/}
+            {/*>*/}
+              {/*<Suspense fallback={null}>*/}
+                {/*<ApplyTable*/}
+                  {/*loading={loading}*/}
+                  {/*dataSource={ActivityComments}*/}
+                  {/*columns={this.commentsColumns}*/}
+                {/*/>*/}
+              {/*</Suspense>*/}
+            {/*</Card>*/}
             {
               AddFlagVal && Object.keys(AddFlagVal).length ? (
                 <Suspense fallback={null}>

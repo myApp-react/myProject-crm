@@ -12,7 +12,7 @@
     "@hanyk/rc-viewer": "^0.0.3",
     "antd": "^3.26.6",
     "classnames": "^2.2.6",
-    "dva": "^2.6.0-beta.20",
+    "dva": "2.6.0-beta.7",
     "lodash-decorators": "^6.0.0",
     "moment": "^2.22.2",
     "react": "^16.8.6",
@@ -53,9 +53,9 @@
     "tslint": "^5.12.0",
     "tslint-eslint-rules": "^5.4.0",
     "tslint-react": "^3.6.0",
-    "umi": "^2.12.4",
-    "umi-plugin-react": "^1.8.0",
-    "umi-types": "^0.5.8"
+    "umi": "^2.12.9",
+    "umi-plugin-react": "^1.14.12",
+    "umi-types": "^0.5.11"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

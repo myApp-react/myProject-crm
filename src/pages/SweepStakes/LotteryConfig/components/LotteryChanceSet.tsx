@@ -91,12 +91,12 @@ class LotteryChanceSet extends PureComponent<LotteryChanceSetProps, LotteryChanc
     {
       title: '会员类型',
       dataIndex: 'CardTypeCategory',
-      render: (val: number) => {
+      render: (val: number, record: any) => {
         if( val === 2 ) return <>
           <Popover
             title='卡类型详细信息'
             content={<>
-              <Tag color="#87d068">#87d068</Tag>
+              {record.CardTypeInfos.map((e: { Id: string, Name: string }) => <Tag key={e.Id} color="#87d068">{e.Name}</Tag>)}
             </>}
           >
             {CardTypeMap[val]} <Icon type="info-circle" style={{color: '#2196F3'}}/>
@@ -116,10 +116,18 @@ class LotteryChanceSet extends PureComponent<LotteryChanceSetProps, LotteryChanc
     {
       title: '获取所需积分',
       dataIndex: 'NeedScores',
+      render: (val: number | null) => {
+        if( val ) return val;
+        return '-'
+      }
     },
     {
       title: '注册数',
       dataIndex: 'RegisteCount',
+      render: (val: number | null) => {
+        if( val ) return val;
+        return '-'
+      }
     },
     {
       title: '需分享次数',
@@ -139,7 +147,7 @@ class LotteryChanceSet extends PureComponent<LotteryChanceSetProps, LotteryChanc
     },
     {
       title: '操作',
-      width: 200,
+      width: 196,
       fixed: 'right',
       render: (text: string, record: any) => (
         <>
@@ -153,10 +161,10 @@ class LotteryChanceSet extends PureComponent<LotteryChanceSetProps, LotteryChanc
             }
             onChange={() => this.handleChangeStatus(record.Id, record.Enabled)}
           />
-          <Divider type="vertical" />
           <Button
             type="primary"
             size='small'
+            style={{marginLeft: 12}}
             onClick={() => this.handleUpdateModalVisible(true, record)}
           >编辑</Button>
           {/*<Tooltip title='编辑'>*/}
@@ -168,10 +176,10 @@ class LotteryChanceSet extends PureComponent<LotteryChanceSetProps, LotteryChanc
               {/*onClick={() => this.handleUpdateModalVisible(true, record)}*/}
             {/*/>*/}
           {/*</Tooltip>*/}
-          <Divider type="vertical" />
           <Button
             type="danger"
             size='small'
+            style={{marginLeft: 12}}
             onClick={() => this.removeHandle(record.Id)}
           >删除</Button>
           {/*<Tooltip title='删除'>*/}

@@ -154,10 +154,17 @@ class TableList extends Component<TableListProps, TableListState> {
       render: (text, record) => (
         <>
           <Switch checkedChildren="启用" unCheckedChildren="禁用" />
-          <Divider type="vertical" />
-          <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a>
-          <Divider type="vertical" />
-          <a href="">删除</a>
+          <Button
+            type='primary'
+            size='small'
+            style={{marginLeft: 12}}
+            onClick={() => this.handleUpdateModalVisible(true, record)}
+          >编辑</Button>
+          <Button
+            type='danger'
+            size='small'
+            style={{marginLeft: 12}}
+          >删除</Button>
         </>
       ),
     },
@@ -496,6 +503,7 @@ class TableList extends Component<TableListProps, TableListState> {
               />
             </Suspense>
           )}
+
         </>
     );
   }

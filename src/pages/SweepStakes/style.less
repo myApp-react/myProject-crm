@@ -9,6 +9,25 @@
     }
   }
 }
+.textOverflow{
+  width: 170px;
+  height: 20px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  word-break: break-all;
+}
+
+.remove{
+  border: none;
+  color: #FF4D4F;
+  background: none;
+  &:disabled{
+    color: rgba(0, 0, 0, 0.25);
+    cursor: not-allowed;
+  }
+}
 
 .menu-text{
   margin-left: 12px;

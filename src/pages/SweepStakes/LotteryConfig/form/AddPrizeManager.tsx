@@ -14,7 +14,7 @@ interface AddPrizeManagerProps extends FormComponentProps {
   AcitivityId: string;
   uploadLoading: boolean;
   modalEditHandle: () => void;
-  savePrizeAllHandle: (fields: SaveLuckydrawItem) => void;
+  savePrizeAllHandle: (fields: SaveLuckydrawItem, callback: () => void ) => void;
   CouponItem: CouponItem[];
   uploadImagesHandle: (dataStr: string, callback: (data: string) => void) => void;
 }
@@ -34,12 +34,12 @@ class AddPrizeManager extends PureComponent<AddPrizeManagerProps, AddPrizeManage
   }
 
   okHandle = () => {
-    const { form, savePrizeAllHandle, AcitivityId } = this.props;
+    const { form, savePrizeAllHandle, AcitivityId, modalEditHandle } = this.props;
     const { DrawimgurlSeed } = this.state;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      form.resetFields();
-      console.log(fieldsValue)
+
+      // console.log(fieldsValue)
       const { CouponNo, prizeImage, ...rest } = fieldsValue
       const values = {
         AcitivityId,
@@ -47,8 +47,12 @@ class AddPrizeManager extends PureComponent<AddPrizeManagerProps, AddPrizeManage
         DrawimgurlSeed,
         DrawCategoryType: 2
       }
-      console.log('values', values)
-      savePrizeAllHandle(values)
+      // console.log('values', values)
+      savePrizeAllHandle(values, () => {
+        message.success('新增奖品成功！');
+        form.resetFields();
+        modalEditHandle();
+      })
     });
   };
 
@@ -83,9 +87,9 @@ class AddPrizeManager extends PureComponent<AddPrizeManagerProps, AddPrizeManage
   };
 
   //设置编码
-  handleSelectCoupon = (val: string) => {
+  handleSelectCoupon = (val: string, e: any) => {
     const { form } = this.props;
-    form.setFieldsValue({ CouponNo: val })
+    form.setFieldsValue({ CouponNo: e.props['data-id'] })
   }
 
   prizeChange = (e: number) => {
@@ -151,45 +155,55 @@ class AddPrizeManager extends PureComponent<AddPrizeManagerProps, AddPrizeManage
               )}
             </FormItem>
           </Col>
-          <Col span={12}>
-            <FormItem label="代金券">
-              {getFieldDecorator('CouponId', {
-                rules: [{ required: true, message: '请选择代金券！'}],
-              })(
-                <Select
-                  placeholder="请选择代金券"
-                  style={{width: '100%'}}
-                  onChange={this.handleSelectCoupon}
-                >
-                  {
-                    CouponItem.map(_ => (
-                      <Select.Option key={_.CouponId} value={_.CouponId}>{_.CouponName}</Select.Option>
-                    ))
-                  }
-                </Select>,
-              )}
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem label="代金券编码">
-              {getFieldDecorator('CouponNo', {
-                initialValue: ''
-              })(
-                <Input style={{width: '100%', color: '#333'}} disabled/>,
-              )}
-            </FormItem>
-          </Col>
           {
             prizeType === 1 && (
-              <Col span={12}>
-                <FormItem label="代金券赠送数量">
-                  {getFieldDecorator('CouponSendNum', {
-                    rules: [{ required: true, message: '请输入代金券赠送数量！'}],
-                  })(
-                    <InputNumber placeholder='请输入代金券赠送数量' min={1} style={{width: '100%'}}/>,
-                  )}
-                </FormItem>
-              </Col>
+              <>
+
+              </>
+            )
+          }
+
+          {
+            prizeType === 1 && (
+              <>
+                <Col span={12}>
+                  <FormItem label="代金券">
+                    {getFieldDecorator('CouponId', {
+                      rules: [{ required: true, message: '请选择代金券！'}],
+                    })(
+                      <Select
+                        placeholder="请选择代金券"
+                        style={{width: '100%'}}
+                        onChange={this.handleSelectCoupon}
+                      >
+                        {
+                          CouponItem.map(_ => (
+                            <Select.Option key={_.CouponId} data-id={_.CouponCode} value={_.CouponId}>{_.CouponName}</Select.Option>
+                          ))
+                        }
+                      </Select>,
+                    )}
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem label="代金券编码">
+                    {getFieldDecorator('CouponNo', {
+                      initialValue: ''
+                    })(
+                      <Input style={{width: '100%', color: '#333'}} disabled/>,
+                    )}
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem label="代金券赠送数量">
+                    {getFieldDecorator('CouponSendNum', {
+                      rules: [{ required: true, message: '请输入代金券赠送数量！'}],
+                    })(
+                      <InputNumber placeholder='请输入代金券赠送数量' min={1} style={{width: '100%'}}/>,
+                    )}
+                  </FormItem>
+                </Col>
+              </>
             )
           }
           {

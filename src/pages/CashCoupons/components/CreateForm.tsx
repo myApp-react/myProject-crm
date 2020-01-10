@@ -603,7 +603,7 @@ class CreateCouponsForm extends PureComponent<CreateFormProps, CreateFormState>{
                 </>} type="info" />}
                 columns={this.columns}
                 dataSource={data}
-                size="middle"
+                size="small"
                 scroll={{ y: 240 }}
               />
             </Col>

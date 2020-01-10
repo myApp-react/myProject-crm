@@ -130,7 +130,7 @@ class StandardTable extends Component<StandardTableProps<TableListItem>, Standar
           dataSource={list}
           pagination={paginationProps}
           onChange={this.handleTableChange}
-          scroll={{ x: 1400 }}
+          scroll={{ x: '1800px' }}
           size='small'
           {...rest}
         />

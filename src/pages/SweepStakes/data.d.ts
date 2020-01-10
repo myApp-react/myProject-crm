@@ -26,7 +26,11 @@ export interface TableListItem {
   ActivityImageUrl: string;
   TurnTableImageUrl: string;
   ReproductionUrl: string;
-
+  ApplyPlaceHolder: string
+  ApplyMaxCount: number
+  ApplyScores: number
+  ApplyStartTimeSpan: number
+  ApplyEndTimeSpan: number
   Index: number;
   Size: number;
 }

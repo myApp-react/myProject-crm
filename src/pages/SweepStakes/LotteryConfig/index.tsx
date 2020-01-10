@@ -28,7 +28,7 @@ const tabTurntableList = [
   },
   {
     key: 'PrizeRangeManager',
-    tab: '奖品幅度管理',
+    tab: '奖品弧度管理',
   },
   {
     key: 'LotteryChanceSet',

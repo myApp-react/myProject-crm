@@ -32,7 +32,7 @@ interface EditPrizePoolGiftProps extends FormComponentProps {
   uploadLoading: boolean;
   values: LuckydrawItem;
   modalEditHandle: (flag?: boolean, record?: LuckydrawItem) => void;
-  savePrizeAllHandle: (fields: SaveLuckydrawItem) => void;
+  savePrizeAllHandle: (fields: SaveLuckydrawItem, callback: () => void) => void;
   CouponItem: CouponItem[];
   uploadImagesHandle: (dataStr: string, callback: (data: string) => void) => void;
 }
@@ -62,11 +62,11 @@ class EditPrizePoolGift extends PureComponent<EditPrizePoolGiftProps, EditPrizeP
   }
 
   okHandle = () => {
-    const { form, savePrizeAllHandle, AcitivityId, values } = this.props;
+    const { form, savePrizeAllHandle, AcitivityId, values, modalEditHandle } = this.props;
     const { DrawimgurlSeed } = this.state;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      form.resetFields();
+
       const { CouponNo, prizeImage, ...rest } = fieldsValue;
       const { LuckyDrawId  } = values;
       const CurrValues = {
@@ -76,8 +76,12 @@ class EditPrizePoolGift extends PureComponent<EditPrizePoolGiftProps, EditPrizeP
         DrawimgurlSeed,
         DrawCategoryType: 1
       }
-      console.log('values', CurrValues)
-      savePrizeAllHandle(CurrValues)
+      // console.log('values', CurrValues)
+      savePrizeAllHandle(CurrValues, () => {
+        message.success('修改奖池奖品成功！');
+        form.resetFields();
+        modalEditHandle(false, values);
+      })
     });
   };
 
@@ -88,7 +92,7 @@ class EditPrizePoolGift extends PureComponent<EditPrizePoolGiftProps, EditPrizeP
 
   prizeUploadImgChange = (info: any) => {
     const _self = this;
-    const { uploadImagesHandle } = this.props;
+    const { uploadImagesHandle, values, modalEditHandle } = this.props;
     const isJpgOrPng = info.file.type === 'image/jpeg' || info.file.type === 'image/png';
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!');
@@ -100,10 +104,15 @@ class EditPrizePoolGift extends PureComponent<EditPrizePoolGiftProps, EditPrizeP
       return
     }
     getBase64(info.file, (imageUrl: any) => {
+      const currVal = {
+        ...values,
+        DrawImageUrl: imageUrl
+      }
       if(uploadImagesHandle){
         uploadImagesHandle(imageUrl, (data) => {
+          modalEditHandle(true, currVal);
           _self.setState({
-            ImageUrl: imageUrl,
+            // ImageUrl: imageUrl,
             DrawimgurlSeed: data
           })
         })

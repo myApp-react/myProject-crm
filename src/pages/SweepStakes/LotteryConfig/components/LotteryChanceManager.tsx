@@ -167,13 +167,12 @@ class LotteryChanceManager extends PureComponent<LotteryChanceManagerProps, Lott
           <Switch
             checkedChildren="启用"
             unCheckedChildren="禁用"
-            checked={record.enableStatus === 1}
-            onChange={() => this.handleChangeLucwyStatus(record.Id, record.enableStatus)}
+            checked={record.Enabled === 1}
+            onChange={() => this.handleChangeLucwyStatus(record.Id, record.Enabled)}
           />
           {/*<Tooltip title='导出'>*/}
             {/*<Button type="primary" size='small' shape="round" icon="cloud-download" disabled/>*/}
           {/*</Tooltip>*/}
-
         </>
       ),
     },

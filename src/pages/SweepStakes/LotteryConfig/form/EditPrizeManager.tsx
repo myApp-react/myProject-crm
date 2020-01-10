@@ -31,7 +31,7 @@ interface EditPrizeManagerProps extends FormComponentProps {
   uploadLoading: boolean;
   values: LuckydrawItem;
   modalEditHandle: (flag?: boolean, record?: LuckydrawItem) => void;
-  savePrizeAllHandle: (fields: SaveLuckydrawItem) => void;
+  savePrizeAllHandle: (fields: SaveLuckydrawItem, callback: () => void ) => void;
   CouponItem: CouponItem[];
   uploadImagesHandle: (dataStr: string, callback: (data: string) => void) => void;
 
@@ -62,23 +62,26 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
   }
 
   okHandle = () => {
-    const { form, savePrizeAllHandle, AcitivityId, values } = this.props;
+    const { form, savePrizeAllHandle, AcitivityId, values, modalEditHandle } = this.props;
     const { DrawimgurlSeed } = this.state;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      form.resetFields();
-      console.log(fieldsValue)
+
       const { CouponNo, prizeImage, ...rest } = fieldsValue
-      const { LuckyDrawId } = values;
+      const { LuckyDrawId, DrawCategoryType } = values;
       const currValues = {
         Id: LuckyDrawId,
         AcitivityId,
         ...rest,
         DrawimgurlSeed,
-        DrawCategoryType: 2
+        DrawCategoryType
       }
-      console.log('编辑普通奖品信息', currValues);
-      savePrizeAllHandle(currValues)
+      // console.log('编辑普通奖品信息', currValues);
+      savePrizeAllHandle(currValues, () => {
+        message.success('编辑成功！');
+        form.resetFields();
+        modalEditHandle(false, values)
+      })
     });
   };
 
@@ -89,7 +92,7 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
 
   prizeUploadImgChange = (info: any) => {
     const _self = this;
-    const { uploadImagesHandle } = this.props;
+    const { uploadImagesHandle, modalEditHandle, values } = this.props;
     const isJpgOrPng = info.file.type === 'image/jpeg' || info.file.type === 'image/png';
     if (!isJpgOrPng) {
       message.error('只能上传 JPG/PNG 格式的图片!');
@@ -101,10 +104,15 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
       return
     }
     getBase64(info.file, (imageUrl: any) => {
+      const currVal = {
+        ...values,
+        DrawImageUrl: imageUrl
+      }
       if(uploadImagesHandle){
         uploadImagesHandle(imageUrl, (data) => {
+          modalEditHandle(true, currVal);
           _self.setState({
-            ImageUrl: imageUrl,
+            // ImageUrl: imageUrl,
             DrawimgurlSeed: data
           })
         })
@@ -113,9 +121,9 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
   };
 
   //设置编码
-  handleSelectCoupon = (val: string) => {
+  handleSelectCoupon = (val: string, e: any) => {
     const { form } = this.props;
-    form.setFieldsValue({ CouponNo: val })
+    form.setFieldsValue({ CouponNo: e.props['data-id'] })
   }
 
   prizeChange = (e: number) => {
@@ -127,8 +135,8 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
     const { visible, form, modalEditHandle, CouponItem, uploadLoading, values } = this.props;
     const { getFieldDecorator } = form;
     const { ImageUrl, prizeType } = this.state;
-    console.log('values', values)
-    // const { } =
+    const { DrawCategoryType } = values;
+    // console.log('values', values)
     const uploadButton = (
       <div>
         <Icon type={uploadLoading ? 'loading' : 'plus'} style={{fontSize: 20, color: '#999'}}/>
@@ -198,7 +206,7 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
                 >
                   {
                     CouponItem.map(_ => (
-                      <Select.Option key={_.CouponId} value={_.CouponId}>{_.CouponName}</Select.Option>
+                      <Select.Option key={_.CouponId} data-id={_.CouponCode} value={_.CouponId}>{_.CouponName}</Select.Option>
                     ))
                   }
                 </Select>,
@@ -208,7 +216,7 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
           <Col span={12}>
             <FormItem label="代金券编码">
               {getFieldDecorator('CouponNo', {
-                initialValue: values.CouponId
+                initialValue: values.CouponCode
               })(
                 <Input style={{width: '100%', color: '#333'}} disabled/>,
               )}
@@ -220,7 +228,7 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
                 <FormItem label="代金券赠送数量">
                   {getFieldDecorator('CouponSendNum', {
                     rules: [{ required: true, message: '请输入代金券赠送数量！'}],
-                    initialValue: values.CouponValue
+                    initialValue: values.SendCouponCount
                   })(
                     <InputNumber placeholder='请输入代金券赠送数量' min={1} style={{width: '100%'}}/>,
                   )}
@@ -252,16 +260,28 @@ class EditPrizeManager extends PureComponent<EditPrizeManagerProps, EditPrizeMan
               )}
             </FormItem>
           </Col>
-          <Col span={12}>
-            <FormItem label="奖品总数">
-              {getFieldDecorator('DrawNum', {
-                rules: [{ required: true, message: '请输入奖品总数！'}],
-                initialValue: values.DrawNum
-              })(
-                <InputNumber placeholder='请输入奖品总数' min={1} style={{width: '100%'}}/>,
-              )}
-            </FormItem>
-          </Col>
+          {
+            DrawCategoryType === 2 ? (
+              <Col span={12}>
+                <FormItem label="奖品总数">
+                  {getFieldDecorator('DrawNum', {
+                    rules: [{ required: true, message: '请输入奖品总数！'}],
+                    initialValue: values.DrawNum
+                  })(
+                    <InputNumber placeholder='请输入奖品总数' min={1} style={{width: '100%'}}/>,
+                  )}
+                </FormItem>
+              </Col>
+            ) : (
+              <Col span={12}>
+                <FormItem label="奖品总数">
+                  <InputNumber placeholder='请输入奖品总数' disabled value={values.DrawNum} min={1} style={{width: '100%'}}/>
+                </FormItem>
+              </Col>
+            )
+          }
+
+
           <Col span={12}>
             <FormItem label="排序编号">
               {getFieldDecorator('Orderno', {

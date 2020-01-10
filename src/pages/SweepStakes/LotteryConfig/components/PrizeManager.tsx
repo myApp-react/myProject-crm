@@ -66,21 +66,8 @@ interface PrizeManagerTableState {
   createPrizePoolVisible: boolean;
   EditPrizeModalVisible: boolean;
   EditPrizeForm: Partial<SaveLuckydrawItem>
-  EditPrizePoolModalVisible: boolean;
-  EditPrizePoolForm: Partial<SaveLuckydrawItem>
 
 }
-
-const renderContent = (value, row, index) => {
-  const obj = {
-    children: value,
-    props: {},
-  };
-  if (index === 0) {
-    obj.props.colSpan = 0;
-  }
-  return obj;
-};
 
 @connect(
   ({
@@ -112,8 +99,6 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
     createPrizePoolForm: [],
     EditPrizeModalVisible: false,
     EditPrizeForm: {},
-    EditPrizePoolModalVisible: false,
-    EditPrizePoolForm: {},
 
   }
 
@@ -139,6 +124,7 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
       dataIndex: 'CouponName',
       width: 130,
       render: (val: string) => {
+        if(!val) return '-';
         const Len = val.length;
         if(Len > 8 ) return <Tooltip title={val}>{`${val.slice(0, 8)}...`}</Tooltip>
         return val
@@ -201,7 +187,7 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
     },
     {
       title: '操作',
-      width: 288,
+      width: 190,
       fixed: 'right',
       render: (text: string, record: any, index: number) => {
         return (
@@ -212,15 +198,15 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
               checked={record.Enabled === 1}
               onChange={() => this.changePrizeStatusHandle(record.LuckyDrawId, record.Enabled)}
             />
-            <Divider type="vertical" />
+            {/*<Divider type="vertical" />*/}
             {/*<a>奖池管理</a>*/}
-            <Button
-              type="primary"
-              size='small'
-              onClick={() => this.handleUpdatePoolModalVisible(true, record)}
-            >
-              奖池管理
-            </Button>
+            {/*<Button*/}
+              {/*type="primary"*/}
+              {/*size='small'*/}
+              {/*onClick={() => this.handleUpdatePoolModalVisible(true, record)}*/}
+            {/*>*/}
+              {/*奖池管理*/}
+            {/*</Button>*/}
             {/*<Tooltip title='奖池管理'>*/}
               {/*<Button*/}
                 {/*type="primary"*/}
@@ -230,10 +216,11 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
                 {/*onClick={() => this.handleUpdatePoolModalVisible(true, record)}*/}
               {/*/>*/}
             {/*</Tooltip>*/}
-            <Divider type="vertical" />
+            {/*<Divider type="vertical" />*/}
             <Button
               type="primary"
               size='small'
+              style={{marginLeft: 12}}
               onClick={() => this.handleUpdateModalVisible(true, record)}
             >编辑</Button>
             {/*<Tooltip title='编辑'>*/}
@@ -245,10 +232,11 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
                 {/*onClick={() => this.handleUpdateModalVisible(true, record)}*/}
               {/*/>*/}
             {/*</Tooltip>*/}
-            <Divider type="vertical" />
+            {/*<Divider type="vertical" />*/}
             <Button
               type="danger"
               size='small'
+              style={{marginLeft: 12}}
               disabled={record.DrawCategoryType !== 2}
               onClick={() => this.removePrizeHandle(record.LuckyDrawId)}
             >删除</Button>
@@ -290,10 +278,10 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
       callback: (flag: boolean) => {
         this.setState({selectedRowKeys: []})
         if(flag){
-          message.success({ content: '操作成功！', key });
+          message.success({ content: '操作成功！', key, duration: 2 });
           this.PrizeManagerChange();
         }else {
-          message.error({ content: '操作失败！', key });
+          message.error({ content: '操作失败！', key, duration: 2 });
         }
       }
     })
@@ -303,7 +291,7 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
 
     const { dispatch } = this.props;
     const key = 'remove';
-    // const _self = this;
+    const _self = this;
     confirm({
       title: '确认删除该奖品?',
       content: '删除后不可恢复',
@@ -316,10 +304,10 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
           },
           callback: (flag: boolean) => {
             if(flag){
-              message.success({ content: '删除成功！', key });
-              this.PrizeManagerChange();
+              message.success({ content: '删除成功！', key, duration: 2 });
+              _self.PrizeManagerChange();
             }else {
-              message.error({ content: '删除失败！', key });
+              message.error({ content: '删除失败！', key, duration: 2 });
             }
           }
         })
@@ -400,14 +388,6 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
     });
   };
 
-  // 编辑奖池
-  handleUpdatePoolModalVisible = (flag?: boolean, record?: LuckydrawItem) => {
-    this.setState({
-      EditPrizePoolModalVisible: !!flag,
-      EditPrizePoolForm: record || {},
-    });
-  };
-
 
 
   selectRow = (record: any) => {
@@ -433,7 +413,7 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
   }
 
   //保存奖品
-  savePrizeAllHandle = (fields: SaveLuckydrawItem) => {
+  savePrizeAllHandle = (fields: SaveLuckydrawItem, callback: () => void) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'LotteryConfigDetails/SaveLuckydraw',
@@ -441,14 +421,8 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
         ...fields
       },
       callback: () => {
-        message.success('操作成功！')
         this.PrizeManagerChange();
-        if(fields.DrawCategoryType === 1){
-          this.addPrizePoolGiftHandle()
-        }
-        if(fields.DrawCategoryType === 2){
-          this.addHandle()
-        }
+        if(callback) callback();
       }
     })
   }
@@ -491,8 +465,6 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
       addPrizeGiftModalVisible,
       EditPrizeForm,
       EditPrizeModalVisible,
-      EditPrizePoolForm,
-      EditPrizePoolModalVisible,
     } = this.state
     const { list = [], pagination = false } = advancedOperation1;
 
@@ -590,7 +562,7 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
             dataSource={list}
             pagination={paginationProps}
             columns={this.columns}
-            size='middle'
+            size='small'
             scroll={{ x: 1660 }}
             onChange={this.handleTableChange}
           />
@@ -616,18 +588,6 @@ class PrizeManagerTable extends PureComponent<PrizeManagerTableProps, PrizeManag
               {...EditPrizeMethod}
               visible={EditPrizeModalVisible}
               values={EditPrizeForm}
-              CouponItem={CouponItem}
-              AcitivityId={match && match[1]}
-              uploadLoading={loading.effects['LotteryConfigDetails/UploadActivityImage']}
-            />
-          ) : null
-        }
-        {
-          EditPrizePoolForm && Object.keys(EditPrizePoolForm).length ? (
-            <EditPrizePoolGift
-              {...EditPrizePoolMethod}
-              visible={EditPrizePoolModalVisible}
-              values={EditPrizePoolForm}
               CouponItem={CouponItem}
               AcitivityId={match && match[1]}
               uploadLoading={loading.effects['LotteryConfigDetails/UploadActivityImage']}

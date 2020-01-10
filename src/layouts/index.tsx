@@ -9,6 +9,7 @@ const BasicLayout: React.FC = props => {
       locale={zhCN}
       autoInsertSpaceInButton={false}
     >
+
       {props.children}
     </ConfigProvider>
   );

@@ -29,6 +29,7 @@ import { DraggableModal, DraggableModalProvider } from 'ant-design-draggable-mod
 import 'ant-design-draggable-modal/dist/index.css'
 import { ProjectParams } from '@/models/data';
 import { AddTableParams, TableListItem } from '@/pages/SweepStakes/data';
+import { Prefix } from "@/utils/constant";
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -98,7 +99,7 @@ interface EditFormState {
   viewDrawerVisible: boolean;
   viewDrawerFormVal: any;
   activityType: number;
-  IsApply: boolean;
+  IsApply: number;
   gameType: number;
 }
 
@@ -123,7 +124,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
     viewDrawerVisible: true,
     viewDrawerFormVal: {},
     activityType: 1,
-    IsApply: false,
+    IsApply: 0,
     gameType: 1,
   };
 
@@ -131,21 +132,26 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
     if(nextProps.values.ActivityDetail !== preState.ueditorContent ||
       nextProps.values.ShareImageUrl !== preState.wechatShareImageUrl ||
       nextProps.values.ActivityImageUrl !== preState.activityCoverImageUrl ||
-      nextProps.values.IsNeedApply === 1
+      nextProps.values.IsNeedApply === preState.IsApply ||
+      nextProps.values.ActivityType === preState.activityType ||
+      nextProps.values.ReproductionUrl === preState.activityBgImageUrl
     ){
       return {
-        ueditorContent: decodeURI(nextProps.values.ActivityDetail),
+        ueditorContent: nextProps.values.ActivityDetail && decodeURI(nextProps.values.ActivityDetail) || '',
         wechatShareImageUrl: nextProps.values.ShareImageUrl,
         activityCoverImageUrl: nextProps.values.ActivityImageUrl,
-        IsApply: nextProps.values.IsNeedApply === 1,
+        IsApply: nextProps.values.IsNeedApply,
         turntableImageUrl: nextProps.values.TurnTableImageUrl,
+        activityType: nextProps.values.ActivityType,
+        activityBgImageUrl: nextProps.values.ReproductionUrl
       }
     }
     return null
   }
 
   okHandle = () => {
-    const { form, handleUpdate,  } = this.props;
+    const { form, handleUpdate, values  } = this.props;
+    const { ActivityId } = values;
     form.validateFields((err, fieldsValue) => {
       console.log('fieldsValue---------', fieldsValue)
       if (err) return;
@@ -202,6 +208,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
       }
 
       const values = {
+        AcitivityId: ActivityId,
         ActivityType,
         ProjectId,
         ActivityName,
@@ -228,7 +235,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
         ApplyPlaceHolder
       }
 
-      console.log('values--------', values)
+      // console.log('values--------', values)
       // form.resetFields();
       handleUpdate(values);
     });
@@ -371,9 +378,13 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
 
 
   onChangeUeditorContent = (ueditorContent: any) => {
-    this.setState({
-      ueditorContent
-    })
+    this.setState({ueditorContent})
+    const { values, handleUpdateModalVisible } = this.props;
+    const currValues = {
+      ...values,
+      ActivityDetail: ueditorContent
+    }
+    handleUpdateModalVisible(true, currValues)
   }
 
 
@@ -388,6 +399,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
   endDateHandleValidator = (rule: any, val: Array<moment>, callback: any) => {
     if (!val) {
       callback();
+      return
     }
     if(val.length === 0){
       callback();
@@ -404,9 +416,16 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
   }
 
   activityChangeHandle = (val: number) => {
-    this.setState({
-      activityType: val
-    })
+    const { values, handleUpdateModalVisible } = this.props;
+    const currValues = {
+      ...values,
+      IsNeedApply: 0,
+      ActivityType: val
+    };
+
+    handleUpdateModalVisible(true, currValues);
+    this.setState({activityType: val})
+
   }
 
   activityGameChange = (val: number) => {
@@ -416,8 +435,15 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
   }
 
   applyChange = (e: React.BaseSyntheticEvent) => {
-    const IsApply = e.target.value === 1;
-    this.setState({ IsApply })
+    // const IsApply = e.target.value === 1;
+    // this.setState({ IsApply })
+    const { values, handleUpdateModalVisible } = this.props;
+    const currValues = {
+      ...values,
+      IsNeedApply: e.target.value
+    }
+    handleUpdateModalVisible(true, currValues)
+
   }
 
   render() {
@@ -445,13 +471,18 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
       ShareDesc,
       IsNeedApply,
       IsSingin,
-      IsRecommand, TurnTableImageUrl, ReproductionUrl
+      IsRecommand,
+      ApplyPlaceHolder,
+      ApplyMaxCount,
+      ApplyScores,
+      ApplyStartTimeSpan,
+      ApplyEndTimeSpan,
     } = values;
-    const title = <DragTitle title="新建活动" />;
+    const title = <DragTitle title="编辑活动" />;
 
     return (
       <Modal
-        destroyOnClose={true}
+        destroyOnClose
         title={title}
         width={800}
         style={{ top: 40 }}
@@ -479,6 +510,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                   <Select
                     style={{ width: '100%' }}
                     placeholder='请选择活动类型'
+                    disabled
                     onChange={this.activityChangeHandle}
                   >
                     <Select.Option value={1}>普通活动</Select.Option>
@@ -493,7 +525,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                   rules: [{ required: true, message: '请选择项目名称！' }],
                   initialValue: ProjectId
                 })(
-                  <Select style={{ width: '100%' }} placeholder='请选择项目名称'>
+                  <Select style={{ width: '100%' }} disabled placeholder='请选择项目名称'>
                     {
                       projectData.map(_ => (
                         <Select.Option
@@ -826,13 +858,14 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
               )
             }
             {
-              IsApply && (
+              IsApply === 1 && (
                 <>
                   <Col span={12}>
                     <FormItem  label="报名时间">
                       {form.getFieldDecorator('ApplyRangeDate', {
                         rules: [{ required: true, message: '请选择报名时间范围！' }],
-
+                        initialValue:
+                        ApplyStartTimeSpan && ApplyEndTimeSpan ? [moment(ApplyStartTimeSpan), moment(ApplyEndTimeSpan)] : [undefined, undefined]
                       })(
                         <RangePicker
                           showTime={true}
@@ -852,7 +885,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                     >
                       {form.getFieldDecorator('ApplyScores', {
                         rules: [{ required: false, message: '请输入排序值！' }],
-
+                        initialValue: ApplyScores
                       })(
                         <InputNumber min={1} style={{width: '100%'}} placeholder='请输入排序值'/>
                       )}
@@ -864,6 +897,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                     >
                       {form.getFieldDecorator('ApplyMaxCount', {
                         rules: [{ required: true, message: '请输入最大报名人数！' }],
+                        initialValue: ApplyMaxCount
                       })(
                         <InputNumber min={1} style={{width: '100%'}} placeholder='请输入最大报名人数'/>
                       )}
@@ -875,6 +909,7 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                     >
                       {form.getFieldDecorator('ApplyPlaceHolder', {
                         rules: [{ required: true, message: '请输入报名提示信息！' }],
+                        initialValue: ApplyPlaceHolder
                       })(
                         <Input style={{width: '100%'}} placeholder='请输入报名提示信息'/>
                       )}
@@ -934,28 +969,17 @@ class EditActivityForm extends PureComponent<EditFormProps, EditFormState>{
                     maximumWords: 20000, //允许的最大字符数
                     serverOptions: {
                       /* 上传图片配置项 */
-                      // imageActionName: 'uploadimage', /* 执行上传图片的action名称 */
-                      imageFieldName: 'dataStr', /* 提交的图片表单名称 */
+                      imageActionName: 'uploadimage', /* 执行上传图片的action名称 */
+                      imageFieldName: 'base64str', /* 提交的图片表单名称 */
                       imageMaxSize: 2048000, /* 上传大小限制，单位B */
                       imageAllowFiles: ['.png', '.jpg', '.jpeg', '.gif', '.bmp'], /* 上传图片格式显示 */
                       imageCompressEnable: true, /* 是否压缩图片,默认是true */
                       imageCompressBorder: 1600, /* 图片压缩最长边限制 */
                       imageInsertAlign: 'none', /* 插入的图片浮动方式 */
-                      imageUrlPrefix: '', /* 图片访问路径前缀 */
-                      imageResponseKey: 'fileURL' //! 图片上传接口response中包含图片路径的键名
+                      imageUrlPrefix: `http://120.26.211.143:5001`, /* 图片访问路径前缀 */
+                      imageResponseKey: 'Data' //! 图片上传接口response中包含图片路径的键名
                     },
-                    // 上传文件时的额外信息
-                    serverExtra: {
-                      // 上传文件额外请求头
-                      headers: {
-                        Auth: 'token'
-                      },
-                      // 上传文件额外的数据
-                      extraData: {
-                        desc: 'more data'
-                      }
-                    },
-                    serverUrl: '/ydh/ActivityToUi/UploadActivityImage' // 上传文件的接口
+                    serverUrl: `${Prefix}/ActivityToUi/UploadActivityImageForm` // 上传文件的接口
                   }}
                 />
               </FormItem>

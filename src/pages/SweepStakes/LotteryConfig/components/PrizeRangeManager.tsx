@@ -111,6 +111,7 @@ class PrizeRangeManager extends PureComponent<PrizeManagerTableProps, PrizeManag
           <Button
             type="primary"
             size='small'
+            style={{marginRight: 12}}
             onClick={() => this.handleUpdateModalVisible(true, record)}
           >
             编辑
@@ -124,7 +125,6 @@ class PrizeRangeManager extends PureComponent<PrizeManagerTableProps, PrizeManag
               {/*onClick={() => this.handleUpdateModalVisible(true, record)}*/}
             {/*/>*/}
           {/*</Tooltip>*/}
-          <Divider type="vertical" />
           <Button
             type="danger"
             size='small'
@@ -268,11 +268,12 @@ class PrizeRangeManager extends PureComponent<PrizeManagerTableProps, PrizeManag
         >
           <Table
             bordered
+            rowKey={'Id'}
             pagination={paginationProps}
             loading={loading.effects['LotteryConfigDetails/QueryLuckyTableRadians']}
             dataSource={list}
             columns={this.columns}
-            size='middle'
+            size='small'
             onChange={this.handleTableChange}
           />
         </Card>

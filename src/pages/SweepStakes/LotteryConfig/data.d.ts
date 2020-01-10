@@ -104,6 +104,7 @@ export interface CouponItemParams {
 export interface CouponItem {
   CouponId: string;
   CouponName: string;
+  CouponCode: string;
 }
 
 export interface SysCardType {
@@ -177,6 +178,7 @@ export interface LuckydrawItem {
   TotalLimitCount: number;
   DrawImageUrl: string;
   Enabled: number;
+  SendCouponCount: number | null;
 }
 
 export interface ChangeLuckyDrawStatus {

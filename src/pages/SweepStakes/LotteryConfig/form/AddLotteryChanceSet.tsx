@@ -19,13 +19,16 @@ interface AddLotteryChanceSetProps extends FormComponentProps {
 interface AddLotteryChanceSetState {
   shareCountStatus: number;
   joinType: number;
+  ChannelType: number;
 }
 
 class AddLotteryChanceSet extends PureComponent<AddLotteryChanceSetProps, AddLotteryChanceSetState>{
 
   state: AddLotteryChanceSetState = {
     shareCountStatus: 1,
-    joinType: 1
+    joinType: 1,
+    ChannelType: 0,
+
   }
 
   joinChange = (val: number) => {
@@ -41,7 +44,7 @@ class AddLotteryChanceSet extends PureComponent<AddLotteryChanceSetProps, AddLot
     const { form, saveHandle, ActivityId } = this.props;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      form.resetFields();
+
       // console.log(fieldsValue)
       const { Enabled, ...rest } = fieldsValue;
       const values = {
@@ -49,16 +52,20 @@ class AddLotteryChanceSet extends PureComponent<AddLotteryChanceSetProps, AddLot
         ...rest,
         Enabled: Enabled ? 1 : 0
       }
-      saveHandle(values)
+      saveHandle(values);
+      form.resetFields();
     });
   };
 
+  handleChannelTypeChange = (val: number) => {
+    this.setState({ChannelType: val})
+  }
 
 
   render() {
     const { visible, form, modalEditHandle, CardTypes } = this.props;
     const { getFieldDecorator } = form;
-    const { shareCountStatus, joinType } = this.state;
+    const { shareCountStatus, joinType, ChannelType } = this.state;
     return <Modal
       width={700}
       visible={visible}
@@ -91,7 +98,7 @@ class AddLotteryChanceSet extends PureComponent<AddLotteryChanceSetProps, AddLot
               {getFieldDecorator('ChannelType', {
                 rules: [{ required: true, message: '请选择获取途径！'}],
               })(
-                <Select placeholder="请选择获取途径" style={{width: '100%'}}>
+                <Select placeholder="请选择获取途径" onChange={this.handleChannelTypeChange} style={{width: '100%'}}>
                   <Select.Option value={1}>会员权益</Select.Option>
                   <Select.Option value={2}>积分兑换</Select.Option>
                   <Select.Option value={3}>分享赠送</Select.Option>
@@ -159,50 +166,64 @@ class AddLotteryChanceSet extends PureComponent<AddLotteryChanceSetProps, AddLot
               )}
             </FormItem>
           </Col>
-          <Col span={12}>
-            <FormItem label="分享获取统计方式">
-              {getFieldDecorator('SharegetType', {
-                rules: [{ required: false, message: '请输入获取机会所需积分！'}],
-                initialValue: 1
-              })(
-                <Radio.Group
-                  onChange={this.ShareGetTypeChange}
-                >
-                  <Radio value={1}>分享到朋友圈</Radio>
-                  <Radio value={2}>分享被阅读</Radio>
-                </Radio.Group>
-              )}
-            </FormItem>
-          </Col>
           {
-            shareCountStatus === 2 ? <Col span={12}>
-              <FormItem label="分享被阅读次数">
-                {getFieldDecorator('ShareReadedCount', {
-                  rules: [{ required: true, message: '请输入获取机会所需积分！'}],
-                })(
-                  <InputNumber placeholder='请输入次数' min={1} style={{width: '100%'}}/>,
-                )}
-              </FormItem>
-            </Col> : null
+            ChannelType === 3 && (
+              <>
+                <Col span={12}>
+                  <FormItem label="分享获取统计方式">
+                    {getFieldDecorator('SharegetType', {
+                      rules: [{ required: false, message: '请输入获取机会所需积分！'}],
+                      initialValue: 1
+                    })(
+                      <Radio.Group
+                        onChange={this.ShareGetTypeChange}
+                      >
+                        <Radio value={1}>分享到朋友圈</Radio>
+                        <Radio value={2}>分享被阅读</Radio>
+                      </Radio.Group>
+                    )}
+                  </FormItem>
+                </Col>
+                {
+                  shareCountStatus === 2 ? <Col span={12}>
+                    <FormItem label="分享被阅读次数">
+                      {getFieldDecorator('ShareReadedCount', {
+                        rules: [{ required: true, message: '请输入获取机会所需积分！'}],
+                      })(
+                        <InputNumber placeholder='请输入次数' min={1} style={{width: '100%'}}/>,
+                      )}
+                    </FormItem>
+                  </Col> : null
+                }
+              </>
+            )
           }
-          <Col span={12}>
-            <FormItem label="获取机会所需积分">
-              {getFieldDecorator('NeedScores', {
-                rules: [{ required: true, message: '请输入获取机会所需积分！'}],
-              })(
-                <InputNumber placeholder='请输入获取机会所需积分' min={1} style={{width: '100%'}}/>,
-              )}
-            </FormItem>
-          </Col>
-          <Col span={12}>
-            <FormItem label="获取机会所需注册人数">
-              {getFieldDecorator('NeesRegisteCount', {
-                rules: [{ required: true, message: '请输入获取机会所需注册人数！'}],
-              })(
-                <InputNumber placeholder='请输入获取机会所需注册人数' min={1} style={{width: '100%'}}/>,
-              )}
-            </FormItem>
-          </Col>
+          {
+            ChannelType === 2 && (
+              <Col span={12}>
+                <FormItem label="获取机会所需积分">
+                  {getFieldDecorator('NeedScores', {
+                    rules: [{ required: true, message: '请输入获取机会所需积分！'}],
+                  })(
+                    <InputNumber placeholder='请输入获取机会所需积分' min={1} style={{width: '100%'}}/>,
+                  )}
+                </FormItem>
+              </Col>
+            )
+          }
+          {
+            ChannelType === 4 && (
+              <Col span={12}>
+                <FormItem label="获取机会所需注册人数">
+                  {getFieldDecorator('NeesRegisteCount', {
+                    rules: [{ required: true, message: '请输入获取机会所需注册人数！'}],
+                  })(
+                    <InputNumber placeholder='请输入获取机会所需注册人数' min={1} style={{width: '100%'}}/>,
+                  )}
+                </FormItem>
+              </Col>
+            )
+          }
           <Col span={12}>
             <FormItem label="启用状态">
               {getFieldDecorator('Enabled', {

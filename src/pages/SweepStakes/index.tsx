@@ -1,14 +1,9 @@
-/**
- * title: 抽奖活动
- * */
-
 import {
   Badge,
   Button,
   Card,
   Col,
   DatePicker,
-  Divider,
   Form,
   Icon,
   Input,
@@ -17,7 +12,6 @@ import {
   Tooltip,
   message,
   Menu,
-  Dropdown,
   Tag,
   Modal,
 } from 'antd';
@@ -32,7 +26,7 @@ import moment from 'moment';
 import { StateType } from './model';
 import CreateForm from './components/CreateForm';
 import StandardTable, { StandardTableColumnProps } from './components/StandardTable';
-import UpdateForm, { FormValueType } from './components/UpdateForm';
+import UpdateForm  from './components/UpdateForm';
 import { TableListItem, TableListPagination, TableListParams } from './data.d';
 
 import styles from './style.less';
@@ -70,7 +64,14 @@ interface TableListProps extends FormComponentProps {
       | 'app/GetConfig'
     >
   >;
-  loading: any;
+  loading: {
+    models: {
+      [key: string]: boolean;
+    };
+    effects: {
+      [key: string]: boolean;
+    };
+  };
   sweepStakes: StateType;
   app: appType;
 }
@@ -87,13 +88,35 @@ interface TableListState {
   }
 }
 
+//@connect(
+//   ({
+//      sweepStakes,
+//      app,
+//      loading
+//   }: {
+//     sweepStakes: StateType;
+//     app: appType;
+//     loading: {
+//       models: {
+//         [key: string]: boolean;
+//       };
+//       effects: {
+//         [key: string]: boolean;
+//       };
+//     };
+//   }) => ({
+//     sweepStakes,
+//     app,
+//     loading
+//   }),
+// )
 
 /* eslint react/no-multi-comp:0 */
 @connect(
   ({
-    sweepStakes,
-    app,
-    loading,
+     sweepStakes,
+     app,
+     loading
   }: {
     sweepStakes: StateType;
     app: appType;
@@ -101,12 +124,15 @@ interface TableListState {
       models: {
         [key: string]: boolean;
       };
+      effects: {
+        [key: string]: boolean;
+      };
     };
   }) => ({
     sweepStakes,
     app,
     loading
-  }),
+  })
 )
 class TableList extends Component<TableListProps, TableListState> {
   state: TableListState = {
@@ -128,14 +154,17 @@ class TableList extends Component<TableListProps, TableListState> {
       fixed: 'left',
       width: 180,
       render(name: string, record: any) {
-        // const len = name.length;
-        // if(len > 20){
-        //   return <Tooltip title={name} placement="right">{String(name).slice(0, 12)}...</Tooltip>
-        // }
-        // return name
-        return <Tooltip title='点击查看详情'>
-          <Link to={`/sweepstakes/details/${record.ActivityId}`}>{name}</Link>
-        </Tooltip>
+        const textLen = name.length;
+        if(textLen > 11 ) {
+          return <Tooltip title={name} placement='right'>
+            <Link
+              to={`/sweepstakes/details/${record.ActivityId}`}
+              className={styles.textOverflow}
+              style={{WebkitBoxOrient: 'vertical'}}
+            >{name}</Link>
+          </Tooltip>;
+        }
+        return <Link to={`/sweepstakes/details/${record.ActivityId}`}>{name}</Link>
       }
     },
     {
@@ -181,7 +210,7 @@ class TableList extends Component<TableListProps, TableListState> {
     {
       title: '发布时间',
       dataIndex: 'PublishTime',
-      width: 150,
+      // width: 150,
       render: (val: string) => {
         if(!val) return '-';
         return (
@@ -193,68 +222,110 @@ class TableList extends Component<TableListProps, TableListState> {
       title: '是否需要报名',
       dataIndex: 'IsNeedApply',
       width: 110,
-      align: 'right',
       render: (val: number) => val === 0 ? '否' : '是',
     },
     {
       title: '是否需要签到',
       dataIndex: 'IsSingin',
       width: 110,
-      align: 'right',
       render: (val: number) => val === 0 ? '否' : '是',
     },
     {
       title: '是否推荐',
       dataIndex: 'IsRecommand',
       width: 110,
-      align: 'right',
       render: (val: number) => val === 0 ? '否' : '是',
     },
+    // {
+    //   title: '发布状态',
+    //   width: 80,
+    //   align: 'right',
+    //   fixed: 'right',
+    //   render: (val: number) => (
+    //     <Switch checkedChildren="开" unCheckedChildren="关"/>
+    //   )
+    // },
     {
       title: '操作',
-      width: 186,
+      width: 300,
       fixed: 'right',
       render: (text, record) => (
         <Fragment>
-          {/*<Link to={`/sweepstakes/details/${record.ActivityId}`}>详情</Link>*/}
-          {/*<Divider type="vertical" />*/}
-          {/*<Tooltip title='编辑'>*/}
-            {/*<Button*/}
-              {/*type='primary'*/}
-              {/*// shape="round"*/}
-              {/*// icon="form"*/}
-              {/*size='small'*/}
-              {/*onClick={() => this.handleUpdateModalVisible(true, record)}*/}
-            {/*>编辑</Button>*/}
-          {/*</Tooltip>*/}
           <Button
-            type='primary'
             size='small'
+            type='primary'
+            style={{marginRight: 12}}
             onClick={() => this.handleUpdateModalVisible(true, record)}
           >编辑</Button>
+          {
+            record.PublishStatus === 1 && (
+              <Button
+                size='small'
+                ghost
+                type="danger"
+                style={{marginRight: 12, width: 72}}
+                onClick={() => this.handleChangeActivityPublishStatus(record.ActivityId, record.PublishStatus)}
+              >取消发布</Button>
+            )
+          }
+          {
+            record.PublishStatus !== 1 && (
+              <Button
+                size='small'
+                ghost
+                type="primary"
+                style={{marginRight: 12, width: 72}}
+                onClick={() => this.handleChangeActivityPublishStatus(record.ActivityId, record.PublishStatus)}
+              >发&nbsp;&nbsp;布</Button>
+            )
+          }
 
-          {/*<a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a>*/}
-          <Divider type="vertical" />
+          {/*<Button*/}
+            {/*size='small'*/}
+            {/*type="primary"*/}
+            {/*style={{marginRight: 12, width: 72}}*/}
+            {/*onClick={() => this.handleChangeActivityPublishStatus(record.ActivityId, record.PublishStatus)}*/}
+          {/*>*/}
+            {/*{record.PublishStatus === 1 ? '取消发布' : <span>发    &nbsp;&nbsp;&nbsp;&nbsp;  布</span>}*/}
+          {/*</Button>*/}
+
+          <Button
+            size='small'
+            type="primary"
+            ghost
+            disabled={record.ActivityType !== 4}
+            style={{marginRight: 12}}
+            href={`#/sweepstakes/lotteryconfig/${record.ActivityId}`}
+          >抽奖管理</Button>
+
           <Button
             type='danger'
             size='small'
             disabled={record.PublishStatus !== 0}
             onClick={() => this.handleRemove(record.ActivityId)}
           >删除</Button>
-          {/*<Tooltip title='删除'>*/}
-            {/*<Button*/}
-              {/*type="danger"*/}
-              {/*shape="round"*/}
-              {/*icon="delete"*/}
-              {/*size='small'*/}
-              {/*disabled={record.PublishStatus !== 0}*/}
-              {/*onClick={() => this.handleRemove(record.ActivityId)}*/}
-            {/*/>*/}
-          {/*</Tooltip>*/}
-          <Divider type="vertical" />
-          <Dropdown overlay={this.tableMoreMenu(record)}>
-            <a>更多 <Icon type="down" /></a>
-          </Dropdown>
+          {/*{*/}
+            {/*record.ActivityType === 4 ? (*/}
+              {/*<>*/}
+                {/*<Divider type="vertical" />*/}
+                {/*<Link to={`/sweepstakes/lotteryconfig/${record.ActivityId}`}>抽奖管理</Link>*/}
+              {/*</>*/}
+            {/*) : <>*/}
+              {/*<Divider type="vertical" />*/}
+              {/*----------*/}
+            {/*</>*/}
+          {/*}*/}
+          {/*<Divider type="vertical" />*/}
+          {/*<Switch />*/}
+          {/*<a onClick={() => this.handleChangeActivityPublishStatus(record.ActivityId, record.PublishStatus)}>*/}
+            {/*{record.PublishStatus === 1 ? '取消发布' : <span>发    &nbsp;&nbsp;&nbsp;&nbsp;  布</span>}*/}
+          {/*</a>*/}
+          {/*<Divider type="vertical" />*/}
+          {/*<button*/}
+            {/*className={styles.remove}*/}
+            {/*disabled={record.PublishStatus !== 0}*/}
+            {/*onClick={() => this.handleRemove(record.ActivityId)}*/}
+          {/*>删除</button>*/}
         </Fragment>
       ),
     },
@@ -527,12 +598,12 @@ class TableList extends Component<TableListProps, TableListState> {
             <FormItem label="活动类型">
               {getFieldDecorator('ActivityType')(
                 <Select placeholder="请选择活动类型" style={{ width: '100%' }} allowClear={true}>
-                  <Option value={1}>商场活动</Option>
-                  <Option value={2}>商铺活动</Option>
-                  <Option value={3}>在线活动</Option>
+                  <Option value={1}>普通活动</Option>
+                  {/*<Option value={2}>商铺活动</Option>*/}
+                  {/*<Option value={3}>在线活动</Option>*/}
                   <Option value={4}>抽奖活动</Option>
-                  <Option value={5}>满赠兑礼活动</Option>
-                  <Option value={6}>领券活动</Option>
+                  {/*<Option value={5}>满赠兑礼活动</Option>*/}
+                  {/*<Option value={6}>领券活动</Option>*/}
                 </Select>,
               )}
             </FormItem>
@@ -583,12 +654,12 @@ class TableList extends Component<TableListProps, TableListState> {
             <FormItem label="活动类型">
               {getFieldDecorator('ActivityType')(
                 <Select placeholder="请选择活动类型" style={{ width: '100%' }} allowClear={true}>
-                  <Option value={1}>商场活动</Option>
-                  <Option value={2}>商铺活动</Option>
-                  <Option value={3}>在线活动</Option>
+                  <Option value={1}>普通活动</Option>
+                  {/*<Option value={2}>商铺活动</Option>*/}
+                  {/*<Option value={3}>在线活动</Option>*/}
                   <Option value={4}>抽奖活动</Option>
-                  <Option value={5}>满赠兑礼活动</Option>
-                  <Option value={6}>领券活动</Option>
+                  {/*<Option value={5}>满赠兑礼活动</Option>*/}
+                  {/*<Option value={6}>领券活动</Option>*/}
                 </Select>,
               )}
             </FormItem>
@@ -700,7 +771,12 @@ class TableList extends Component<TableListProps, TableListState> {
     };
     return (
       <>
-        <Card bordered={false}>
+        <Card
+          bordered={false}
+          bodyStyle={{
+            paddingBottom: 200
+          }}
+        >
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
@@ -718,13 +794,13 @@ class TableList extends Component<TableListProps, TableListState> {
             />
           </div>
         </Card>
-        {formFlag && Object.keys(formFlag).length && (
+        {formFlag && Object.keys(formFlag).length ? (
             <CreateForm
               {...parentMethods}
               modalVisible={modalVisible}
               projectData={projectData}
             />
-          )
+          ) : null
         }
         {updateFormValues && Object.keys(updateFormValues).length ? (
           <UpdateForm
